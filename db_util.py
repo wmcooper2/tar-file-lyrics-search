@@ -3,7 +3,7 @@ from collections import namedtuple
 import re
 import sqlite3
 import tarfile
-from typing import Generator, List, TypeVar
+from typing import Any, Generator, List, TypeVar
 
 
 match = TypeVar("match", re.match, None)
@@ -11,7 +11,7 @@ tarData = TypeVar("tar", tarfile.TarFile, None)
 Song = namedtuple("Song", ["artist", "name"])
 
 
-def open_db(database):
+def open_db(database: str) -> None:
     connection = sqlite3.connect(database)
     db = connection.cursor()
     try:
@@ -28,7 +28,14 @@ def contents(file_: tarData) -> Generator[str, None, str]:
             yield thing.name
 
 
-def split_name(name: str) -> List[namedtuple]:
+def contents2(file_: tarData) -> Generator[str, None, str]:
+    """Make a Generator of the tarfile."""
+    with tarfile.open(file_, "r:gz") as tar:
+        for thing in tar:
+            yield thing
+
+
+def populate_database(name: tarData) -> List[namedtuple]:
     results = []
     counter = 0
     files = contents(name)
@@ -49,20 +56,34 @@ def split_name(name: str) -> List[namedtuple]:
             print(f"{counter}", end="\r", flush=True)
     return results
 
-def simple_word_count(name: str):
-    counter = 0
 
-    # need to work around the songs with problem names
-    with open("problem_files.txt", "r") as f:
-        problems = f.read()
-    files = contents(name)
-    for file_ in files:
-        if file_.endswith(".txt"):
-            first_split = file_.rstrip(".txt")
-            split_name = first_split.split("_")
-            if "Jan & Dean" in first_split:
-                print("\nfound it2!", split_name[0])
-            if str(first_split) in problems:
-                print("\nfound it!", split_name[0])
-            counter += 1
-            print(f"{counter}", end="\r", flush=True)
+def word_list(name: tarData) -> Generator[List[str], None, None]:
+    """Splits words into space delimited units. Yields List."""
+    files = contents2(name)
+    with tarfile.open(name, "r:gz") as tar:
+        for file_ in files:
+            # decode bytes object coming from tar
+            data = tar.extractfile(file_).read().decode("utf-8")
+            yield data.split()
+
+
+def words_in_dict(song: List[str], dict_: List[str]) -> None:
+    """Checking how many words from 'song' are in 'dict_'."""
+    good_words = []
+    bad_words = []
+
+    #normalize with .lower()
+    lowered = [word.strip().lower() for word in dict_]
+    for word in song:
+        if word.lower() in lowered:
+            good_words.append(word)
+        else:
+            bad_words.append(word)
+#     print(good_words)
+#     print(bad_words)
+    good = len(good_words)
+    bad = len(bad_words)
+#     print("good:", good)
+#     print("bad:", bad)
+    print("good %: ", round((good/(good+bad))*100))
+        
