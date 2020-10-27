@@ -6,10 +6,13 @@ import string
 import tarfile
 from typing import Any, Generator, List, Set, TypeVar
 
+# 3rd party
+from nltk.stem.porter import *
 
 match = TypeVar("match", re.match, None)
 tarData = TypeVar("tar", tarfile.TarFile, None)
 Song = namedtuple("Song", ["artist", "name"])
+stemmer = PorterStemmer()
 
 
 def open_db(database: str) -> None:
@@ -134,23 +137,33 @@ def normalize_words(words: List[str]) -> List[str]:
     return remove_all_empty_elements(no_digits)
 
 
-def english_score(list_: Set[str], dict_: Set[str]) -> int:
+def english_score(list_: Set[str], dict_: Set[str]) -> float:
     """Calculate a score for how much of the song is 'real' English.
     
     - 'Real' English words are found in 'dict_'
     - 'dict_' is /usr/share/dict/web2 (macbook)
-    - Returns an integer from 0 to 100
-    - The score is basically the percentage; 0 = 0%, 100 = 100%
+    - Returns score from 0 to 100
     """
+
+#     found = sum(1 for word in list_ if word in dict_)
+#     return round(found/len(list_), 2)
     found = 0
-    set_counter = 0
-    for x in dict_:
-        print(x)
-        set_counter += 1
-        if set_counter > 10:
-            break
-    
-    for word in list_[:10]:
+    good = []
+    bad = []
+
+    set_list = set(list_)
+
+    for word in set_list:
         if word in dict_:
-            found += 1
-    return found
+            good.append(word)
+        else:
+            bad.append(word)
+    
+    for word in bad:
+        stemmed = stemmer.stem(word)
+        if stemmed in dict_:
+            good.append(word)
+
+#     print("good:", good)
+    print("bad:", bad)
+    return round(len(good)/len(set_list), 2)

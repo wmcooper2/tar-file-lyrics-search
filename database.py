@@ -13,7 +13,6 @@ from db_util import (
         populate_database,
         reference_dict,
         word_list)
-#         words_in_dict)
 
 tarname = "block.tar.gz"
 # tarname = "lyrics.tar.gz"
@@ -24,7 +23,6 @@ ref_dict = reference_dict()
 ref_dict = [word.lower() for word in ref_dict]
 ref_dict = set(ref_dict)
 songs = load_songs(tarname) # gen
-
 # set_time = timeit(lambda: "cats" in ref_dict, number=10000)
 
 counter = 0
@@ -42,10 +40,6 @@ for song in songs:
 
 
 
-
-
-
-
 # # Save and close DB
 # db, connection = open_db("lyrics.db")
 # db.executemany('INSERT INTO songs VALUES (?,?)', results)
@@ -55,5 +49,5 @@ for song in songs:
 end = time()
 time_taken = (end-start)/60
 total_songs = 616500
-print(f"Time taken: {time_taken} minutes")
+print(f"Time taken: {round(time_taken, 6)} minutes")
 print(f"Estimated Time (600,000+ songs): {round(((total_songs/counter)*time_taken)/60)} hours")
