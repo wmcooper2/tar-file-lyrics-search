@@ -2,8 +2,9 @@
 from collections import namedtuple
 import re
 import sqlite3
+import string
 import tarfile
-from typing import Any, Generator, List, TypeVar
+from typing import Any, Generator, List, Set, TypeVar
 
 
 match = TypeVar("match", re.match, None)
@@ -62,28 +63,94 @@ def word_list(name: tarData) -> Generator[List[str], None, None]:
     files = contents2(name)
     with tarfile.open(name, "r:gz") as tar:
         for file_ in files:
-            # decode bytes object coming from tar
             data = tar.extractfile(file_).read().decode("utf-8")
             yield data.split()
 
 
+def load_songs(name: tarData) -> Generator[List[str], None, None]:
+    """Splits words into space delimited units. Yields List."""
+    files = contents2(name)
+    with tarfile.open(name, "r:gz") as tar:
+        for file_ in files:
+            yield tar.extractfile(file_).read().decode("utf-8")
+
+
 def words_in_dict(song: List[str], dict_: List[str]) -> None:
     """Checking how many words from 'song' are in 'dict_'."""
-    good_words = []
-    bad_words = []
-
-    #normalize with .lower()
-    lowered = [word.strip().lower() for word in dict_]
-    for word in song:
-        if word.lower() in lowered:
-            good_words.append(word)
-        else:
-            bad_words.append(word)
-#     print(good_words)
-#     print(bad_words)
-    good = len(good_words)
-    bad = len(bad_words)
-#     print("good:", good)
-#     print("bad:", bad)
-    print("good %: ", round((good/(good+bad))*100))
+    return len([word for word in song if word in dict_])
         
+
+# def reference_dict() -> List[str]:
+def reference_dict() -> Set[str]:
+    """Load the dictionary on the local machine."""
+    dictionary = "/usr/share/dict/web2"
+    with open(dictionary, "r") as d:
+#         return d.readlines()
+        ref_dict = d.readlines()
+        ref_dict = [word.lower().strip() for word in ref_dict]
+#         print(ref_dict[:10])
+
+#     ref_dict = reference_dict()
+#     ref_dict = set(ref_dict)
+        return set(ref_dict)
+#     set_time = timeit(lambda: "cats" in ref_dict, number=10000)
+
+
+def remove_all(char: str, list_: List[str]) -> List[str]:
+    """Removes all char from list_."""
+    while char in list_:
+        list_.remove(char)
+    return list_
+
+
+def remove_all_punct(word: str) -> str:
+    """Removes all punctuation from word."""
+    punct = string.punctuation
+    for char in punct:
+        word = remove_all(char, list(word))
+    return "".join(word)
+
+
+def remove_all_digits(word: str) -> str:
+    """Removes all digits from word."""
+    digits = string.digits
+    for num in digits:
+        word = remove_all(num, list(word))
+    return "".join(word)
+
+def remove_all_empty_elements(list_: List[Any]) -> List[Any]:
+    """Removes all empty elements from list_."""
+    while "" in list_:
+        list_.remove("")
+    return list_
+
+
+def normalize_words(words: List[str]) -> List[str]:
+    """Normalize all the words."""
+    strip = (word.strip() for word in words)
+    lower = (word.lower() for word in list(strip))
+    no_punct = list(map(remove_all_punct, lower))
+    no_digits = list(map(remove_all_digits, no_punct))
+    return remove_all_empty_elements(no_digits)
+
+
+def english_score(list_: Set[str], dict_: Set[str]) -> int:
+    """Calculate a score for how much of the song is 'real' English.
+    
+    - 'Real' English words are found in 'dict_'
+    - 'dict_' is /usr/share/dict/web2 (macbook)
+    - Returns an integer from 0 to 100
+    - The score is basically the percentage; 0 = 0%, 100 = 100%
+    """
+    found = 0
+    set_counter = 0
+    for x in dict_:
+        print(x)
+        set_counter += 1
+        if set_counter > 10:
+            break
+    
+    for word in list_[:10]:
+        if word in dict_:
+            found += 1
+    return found

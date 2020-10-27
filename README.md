@@ -9,12 +9,15 @@ Not intended to be run as a standalone program for anything but to help me clean
     * run as `python3 database.py`
 
 
+### Testing
+1. Run the code on block.tar.gz
+    * It has 1/16th the full song amount (~616,000 / 16)
+
 
 ### Notes
-* Working on how I want to classify words as "bad/good" by using the built-in dict "/usr/shar/dict/web2" (macOS)
+* Having a single compressed file is way faster than dealing with the overhead of opening so many text files.
 * The hope is that I can use the built in dictionary to filter out songs in foregin languages, sort songs based on how many "real" words are in the songs (may be an issue due to slang and other poetic tools)
-* The only way I can see of getting a decent run time on parsing the files in the archive (for gathering metrics) would be to run concurrently on my pi-cluster. 
-    * Currently, I estimated that a run through of simply checking if each word from each song is in the built-in dictionary would take 273 hours on my macbook.
-    * I can get this down to about 17 hours (rough guess, without optimizations) by using multiprocessing using all 16 cores of my pi-cluster.
-    
+* The only way I can see of getting a decent run time (< 1 hour) on parsing the files in the archive (for gathering metrics) would be to run concurrently on my pi-cluster. 
+    * I got the estimated run time down from 273 hours to 23 hours (without using the multiprocessing module)
+* I got the normalization functions to work properly, now I have to work on stemming.
 * For now, I should get work on the basics of tarfile and other tools to get it ready for the cluster.

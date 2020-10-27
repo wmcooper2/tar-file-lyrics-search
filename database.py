@@ -1,40 +1,47 @@
 """With manual edits, time to parse all song names and enter into the database took 14.23 minutes"""
 
+from pprint import pprint
 from time import time
+from timeit import timeit
 
 # custom
 from db_util import (
+        english_score,
+        load_songs,
+        normalize_words,
         open_db,
         populate_database,
-        word_list,
-        words_in_dict)
+        reference_dict,
+        word_list)
+#         words_in_dict)
 
-tarname = "block100.tar.gz"
+tarname = "block.tar.gz"
 # tarname = "lyrics.tar.gz"
 start = time()
-
-# # TODO
 # results = populate_database(tarname)
 
-# break up song into words
-songs = word_list(tarname)
-# print(next(songs))
+ref_dict = reference_dict()
+ref_dict = [word.lower() for word in ref_dict]
+ref_dict = set(ref_dict)
+songs = load_songs(tarname) # gen
 
-
-# run through each song and compare against the dictionary
-dictionary = "/usr/share/dict/web2"
-with open(dictionary, "r") as d:
-    dict_ = d.readlines()
+# set_time = timeit(lambda: "cats" in ref_dict, number=10000)
 
 counter = 0
 for song in songs:
-    words_in_dict(song, dict_)
+    normalized = normalize_words(song.split())
+    score = english_score(normalized, ref_dict)
+    print("score:", score)
+
+    #for testing
     counter += 1
-#     print(f"{counter}", end="\r", flush=True)
-    
-    # quit early, for testing
-    if counter >= 6:
+    if counter > 1:
         break
+# TODO
+
+
+
+
 
 
 
