@@ -1,5 +1,5 @@
 # std lib
-from collections import namedtuple
+from collections import defaultdict, namedtuple
 import re
 import sqlite3
 import string
@@ -49,19 +49,20 @@ def populate_database(name: tarData) -> List[namedtuple]:
             split_name = split_name.split("_")
             if len(split_name) > 2:
                 print("\nThere is more than one underscore.")
-                print(f"\t{split_name}")
                 artist = input("What is the correct artist? : ")
                 song_name = input("What is the correct song? : ")
             else:
                 artist = split_name[0]
+                artist = re.sub("^block\d{,3}/", "", artist)
                 song_name = split_name[1]
-            results.append(Song(artist, song_name))
+            entry = Song(artist, song_name)
+            results.append(entry)
             counter += 1
             print(f"{counter}", end="\r", flush=True)
     return results
 
 
-def word_list(name: tarData) -> Generator[List[str], None, None]:
+def lazy_word_list(name: tarData) -> Generator[List[str], None, None]:
     """Splits words into space delimited units. Yields List."""
     files = contents2(name)
     with tarfile.open(name, "r:gz") as tar:
@@ -82,21 +83,6 @@ def words_in_dict(song: List[str], dict_: List[str]) -> None:
     """Checking how many words from 'song' are in 'dict_'."""
     return len([word for word in song if word in dict_])
         
-
-# def reference_dict() -> List[str]:
-def reference_dict() -> Set[str]:
-    """Load the dictionary on the local machine."""
-    dictionary = "/usr/share/dict/web2"
-    with open(dictionary, "r") as d:
-#         return d.readlines()
-        ref_dict = d.readlines()
-        ref_dict = [word.lower().strip() for word in ref_dict]
-#         print(ref_dict[:10])
-
-#     ref_dict = reference_dict()
-#     ref_dict = set(ref_dict)
-        return set(ref_dict)
-#     set_time = timeit(lambda: "cats" in ref_dict, number=10000)
 
 
 def remove_all(char: str, list_: List[str]) -> List[str]:
@@ -137,33 +123,35 @@ def normalize_words(words: List[str]) -> List[str]:
     return remove_all_empty_elements(no_digits)
 
 
+def word_list(list_: str) -> List[str]:
+    """Load word list."""
+    with open(list_, "r") as f:
+        return f.readlines()
+
+
 def english_score(list_: Set[str], dict_: Set[str]) -> float:
-    """Calculate a score for how much of the song is 'real' English.
-    
-    - 'Real' English words are found in 'dict_'
-    - 'dict_' is /usr/share/dict/web2 (macbook)
-    - Returns score from 0 to 100
-    """
+    """Calculate a ratio of how many words from list_ are in dict_."""
+    not_found = []
 
-#     found = sum(1 for word in list_ if word in dict_)
-#     return round(found/len(list_), 2)
     found = 0
-    good = []
-    bad = []
-
-    set_list = set(list_)
-
-    for word in set_list:
+    for word in list_:
         if word in dict_:
-            good.append(word)
+            found += 1
         else:
-            bad.append(word)
-    
-    for word in bad:
+            not_found.append(word)
+
+    for word in not_found.copy():
         stemmed = stemmer.stem(word)
         if stemmed in dict_:
-            good.append(word)
+            found += 1
+            not_found.remove(word)
 
-#     print("good:", good)
-    print("bad:", bad)
-    return round(len(good)/len(set_list), 2)
+    #try to recover "possibly" good words
+    #just for setup
+    #continues to append sets from songs, will be overlap
+    #clean it up later
+    with open("manually_curated_words.txt", "a+") as f:
+        for word in set(not_found):
+            f.write(f"{word}\n")
+
+    return round(found/len(list_), 2)

@@ -21,3 +21,8 @@ Not intended to be run as a standalone program for anything but to help me clean
     * I got the estimated run time down from 273 hours to 23 hours (without using the multiprocessing module)
 * I got the normalization functions to work properly, now I have to work on stemming.
 * For now, I should get work on the basics of tarfile and other tools to get it ready for the cluster.
+
+
+### To do
+* check the problem name files in the block dirs again...
+    * I though I fixed the naming issues, but they appear to have returned.
