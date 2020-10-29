@@ -4,9 +4,8 @@ All 600,000+ songs are in a single tar.gz file.
 
 ### Operation
 Not intended to be run as a standalone program for anything but to help me clean up the data in order to feed into machine learning projects.
-1. `database.py` is the main file.
-    * comment out the lines that you don't need to avoid adding records to the database
-    * run as `python3 database.py`
+1. `gather_metrics.py` is the main file.
+    * run as `python3 gather_metrics.py`
 
 
 ### Testing
@@ -26,3 +25,16 @@ Not intended to be run as a standalone program for anything but to help me clean
 ### To do
 * check the problem name files in the block dirs again...
     * I though I fixed the naming issues, but they appear to have returned.
+
+
+### Database operations
+* To set up the database with the initial values;
+    * run `python3 populate_database.py`
+    * adds artist name, song name and file path to DB
+* Add fields manually with;
+    * `ALTER TABLE songs ADD COLUMN englishScore text;`
+    * have to copy data to new table to delete a field...
+* Run through the song lyrics to gather data/calculate metrics with;
+    * `gather_metrics.py`
+* Update a single column single record value;
+    * `UPDATE songs SET englishScore=99 WHERE artist="Rihanna";`

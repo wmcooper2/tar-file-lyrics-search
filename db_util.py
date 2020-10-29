@@ -11,17 +11,26 @@ from nltk.stem.porter import *
 
 match = TypeVar("match", re.match, None)
 tarData = TypeVar("tar", tarfile.TarFile, None)
-Song = namedtuple("Song", ["artist", "name"])
+Song = namedtuple("Song", ["artist", "name", "filePath"])
 stemmer = PorterStemmer()
 
 
-def open_db(database: str) -> None:
+def create_db(database: str) -> None:
     connection = sqlite3.connect(database)
     db = connection.cursor()
     try:
-        db.execute('''CREATE TABLE songs (artist text, name text)''')
+        db.execute('''CREATE TABLE songs (artist text, name text, filePath text)''')
     except sqlite3.OperationalError:
         print("Table already exists. Skipping table creation")
+    return db, connection
+
+
+def open_db(database: str) -> None:
+    try:
+        connection = sqlite3.connect(database)
+        db = connection.cursor()
+    except:
+        print("Couldn't open DB.")
     return db, connection
 
 
@@ -39,23 +48,35 @@ def contents2(file_: tarData) -> Generator[str, None, str]:
             yield thing
 
 
+def split_name(file_name: str) -> List[str]:
+    """Separate the artist name from the song name."""
+#     split_name = file_name.rstrip(".txt")
+    split_name = re.sub(".txt", "", file_name)
+    return split_name.split("_")
+
+
+
 def populate_database(name: tarData) -> List[namedtuple]:
+    """Add artist, song name and file path to DB."""
     results = []
     counter = 0
     files = contents(name)
     for file_ in files:
         if file_.endswith(".txt"):
-            split_name = file_.rstrip(".txt")
-            split_name = split_name.split("_")
-            if len(split_name) > 2:
+            #
+            artist_song = split_name(file_)
+
+#             artist_song = file_.rstrip(".txt")
+#             artist_song = artist_song.split("_")
+            if len(artist_song) > 2:
                 print("\nThere is more than one underscore.")
                 artist = input("What is the correct artist? : ")
                 song_name = input("What is the correct song? : ")
             else:
-                artist = split_name[0]
+                artist = artist_song[0].strip()
                 artist = re.sub("^block\d{,3}/", "", artist)
-                song_name = split_name[1]
-            entry = Song(artist, song_name)
+                song_name = artist_song[1].strip()
+            entry = Song(artist, song_name, file_)
             results.append(entry)
             counter += 1
             print(f"{counter}", end="\r", flush=True)
@@ -71,18 +92,13 @@ def lazy_word_list(name: tarData) -> Generator[List[str], None, None]:
             yield data.split()
 
 
-def load_songs(name: tarData) -> Generator[List[str], None, None]:
-    """Splits words into space delimited units. Yields List."""
+# def load_songs(name: tarData) -> Generator[List[str], None, None]:
+def load_songs(name: tarData) -> [Generator[List[str], None, None], str]:
+    """Create generator of songs and file names."""
     files = contents2(name)
     with tarfile.open(name, "r:gz") as tar:
         for file_ in files:
-            yield tar.extractfile(file_).read().decode("utf-8")
-
-
-def words_in_dict(song: List[str], dict_: List[str]) -> None:
-    """Checking how many words from 'song' are in 'dict_'."""
-    return len([word for word in song if word in dict_])
-        
+            yield tar.extractfile(file_).read().decode("utf-8"), file_.name  # gen, TarInfo.name
 
 
 def remove_all(char: str, list_: List[str]) -> List[str]:
@@ -129,29 +145,45 @@ def word_list(list_: str) -> List[str]:
         return f.readlines()
 
 
-def english_score(list_: Set[str], dict_: Set[str]) -> float:
-    """Calculate a ratio of how many words from list_ are in dict_."""
-    not_found = []
+def words_in_dict(list_: Set[str], dict_: Set[str]) -> [Set[str], Set[str]]:
+    """Determine which words are and are not in dict_."""
+    not_found = set()
+    found = set()
 
-    found = 0
     for word in list_:
         if word in dict_:
-            found += 1
+            found.add(word) 
         else:
-            not_found.append(word)
+            not_found.add(word)
 
+    #Try to find stemmed words not found in first pass
     for word in not_found.copy():
         stemmed = stemmer.stem(word)
         if stemmed in dict_:
-            found += 1
+            found.add(word)
             not_found.remove(word)
 
-    #try to recover "possibly" good words
-    #just for setup
-    #continues to append sets from songs, will be overlap
-    #clean it up later
-    with open("manually_curated_words.txt", "a+") as f:
-        for word in set(not_found):
-            f.write(f"{word}\n")
+    return found, not_found
 
-    return round(found/len(list_), 2)
+
+def english_score(found: int, not_found: int) -> float:
+    """Calculate a ratio of how many words were found."""
+    return round(found / (found + not_found), 2)
+
+
+def find_record(artist_name: str, song_name: str) -> str:
+    """Find the record in the db."""
+    db, connection = open_db("lyrics.db")
+    return connection.execute(f"SELECT * FROM songs WHERE artist=? AND name=?", (artist_name, song_name))
+
+
+def add_score_to_db(db: Any, english_score: int, song: str) -> sqlite3.Cursor:
+    """Add the english_score to the DB."""
+    db, connection = open_db("lyrics.db")
+    artist, song = split_name(song)
+    print(f"SEARCH : {artist} // {song}")
+#     print(english_score, artist, song)
+#     return connection.execute(f"SELECT * FROM songs WHERE artist=?", (artist))
+    return connection.execute(f"SELECT * FROM songs WHERE artist={artist}")
+#     return find_record(artist, song)
+#     db.execute(f"UPDATE songs SET englishScore={english_score} WHERE artist={song[0]} and name={song[1]}");
