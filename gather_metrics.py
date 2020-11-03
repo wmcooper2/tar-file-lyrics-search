@@ -49,14 +49,13 @@ for song in songs:
     bad_words = not_found.union(bad_words)
 
     #Insert new metrics into new DB field
-#     print("song: ", song[1])
-    result = add_score_to_db(db, score, song[1])
-    print("result: ", result.fetchone()) # returns None... need actual records
-
+    #Make sure you add a field manually first
+    add_score_to_db(db, score, song[1])
 
     #for testing
     counter += 1
-    if counter > 10:
+
+    if counter >= 1:
         break
 
 #Close DB
