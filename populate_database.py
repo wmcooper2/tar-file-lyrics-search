@@ -3,7 +3,7 @@ from db_util import populate_database, create_db
 if __name__ == "__main__":
 
     #Testing DB population
-    tarname = "1.tar.gz"
+    tarname = "2.tar.gz"
     results = populate_database(tarname)
 
 

@@ -63,9 +63,7 @@ def populate_database(name: tarData) -> List[namedtuple]:
     files = contents(name)
     for file_ in files:
         if file_.endswith(".txt"):
-            #
             artist_song = split_name(file_)
-
 #             artist_song = file_.rstrip(".txt")
 #             artist_song = artist_song.split("_")
             if len(artist_song) > 2:
@@ -92,13 +90,18 @@ def lazy_word_list(name: tarData) -> Generator[List[str], None, None]:
             yield data.split()
 
 
-# def load_songs(name: tarData) -> Generator[List[str], None, None]:
 def load_songs(name: tarData) -> [Generator[List[str], None, None], str]:
     """Create generator of songs and file names."""
     files = contents2(name)
     with tarfile.open(name, "r:gz") as tar:
         for file_ in files:
-            yield tar.extractfile(file_).read().decode("utf-8"), file_.name  # gen, TarInfo.name
+            # dirs in archive returned as None
+            extracted = tar.extractfile(file_)
+            if extracted is None:
+                continue
+            else: 
+                result = extracted.read().decode("utf-8")
+                yield result, file_.name  # gen, TarInfo.name
 
 
 def remove_all(char: str, list_: List[str]) -> List[str]:
@@ -122,6 +125,7 @@ def remove_all_digits(word: str) -> str:
     for num in digits:
         word = remove_all(num, list(word))
     return "".join(word)
+
 
 def remove_all_empty_elements(list_: List[Any]) -> List[Any]:
     """Removes all empty elements from list_."""
@@ -181,9 +185,7 @@ def add_score_to_db(db: Any, english_score: int, song: str) -> sqlite3.Cursor:
     """Add the english_score to the DB."""
     db, connection = open_db("lyrics.db")
     artist, song = split_name(song)
-    print(f"SEARCH : {artist} // {song}")
-#     print(english_score, artist, song)
-#     return connection.execute(f"SELECT * FROM songs WHERE artist=?", (artist))
-    return connection.execute(f"SELECT * FROM songs WHERE artist={artist}")
-#     return find_record(artist, song)
-#     db.execute(f"UPDATE songs SET englishScore={english_score} WHERE artist={song[0]} and name={song[1]}");
+    artist = re.sub("^block\d{,3}/", "", artist)
+#     print("artist: ", artist)
+#     print(f"SEARCH : {artist} // {song}")
+    return connection.execute('''SELECT * FROM songs WHERE artist=?AND name=?''', (artist, song))

@@ -7,7 +7,7 @@ from timeit import timeit
 from db_util import (
         add_score_to_db,
         english_score,
-        lazy_word_list,
+#         lazy_word_list,
         load_songs,
         normalize_words,
         open_db,
@@ -16,7 +16,7 @@ from db_util import (
 
 
 start = time()
-tarname = "block.tar.gz"
+tarname = "2.tar.gz"
 manually_curated = "manually_curated_words.txt"
 dictionary = "/usr/share/dict/web2"
 
@@ -39,6 +39,7 @@ db, connection = open_db("lyrics.db")
 
 #Gather metrics here
 songs = load_songs(tarname)  # gen of songs
+#TODO
 counter = 0
 for song in songs:
     normalized = normalize_words(song[0].split())
@@ -52,10 +53,6 @@ for song in songs:
     result = add_score_to_db(db, score, song[1])
     print("result: ", result.fetchone()) # returns None... need actual records
 
-    #### TODO
-    #issue with the results, names from query not matching record?
-#     for row in result:
-#         print("row:", row)
 
     #for testing
     counter += 1
@@ -73,7 +70,6 @@ with open(manually_curated, "w+") as f:
         f.write(f"{word}\n")
 
 
-# # TODO
 #Read a file from the database
 #give a score and save to DB
 
