@@ -34,14 +34,7 @@ def open_db(database: str) -> None:
     return db, connection
 
 
-def contents(file_: tarData) -> Generator[str, None, str]:
-    """Make a Generator of the tarfile."""
-    with tarfile.open(file_, "r:gz") as tar:
-        for thing in tar:
-            yield thing.name
-
-
-def contents2(file_: tarData) -> Generator[str, None, str]:
+def tar_contents(file_: tarData) -> Generator[str, None, str]:
     """Make a Generator of the tarfile."""
     with tarfile.open(file_, "r:gz") as tar:
         for thing in tar:
@@ -50,31 +43,27 @@ def contents2(file_: tarData) -> Generator[str, None, str]:
 
 def split_name(file_name: str) -> List[str]:
     """Separate the artist name from the song name."""
-#     split_name = file_name.rstrip(".txt")
     split_name = re.sub(".txt", "", file_name)
     return split_name.split("_")
-
 
 
 def populate_database(name: tarData) -> List[namedtuple]:
     """Add artist, song name and file path to DB."""
     results = []
     counter = 0
-    files = contents(name)
+    files = tar_contents(name)
     for file_ in files:
-        if file_.endswith(".txt"):
-            artist_song = split_name(file_)
-#             artist_song = file_.rstrip(".txt")
-#             artist_song = artist_song.split("_")
+        if file_.name.endswith(".txt"):
+            artist_song = split_name(file_.name)
             if len(artist_song) > 2:
                 print("\nThere is more than one underscore.")
                 artist = input("What is the correct artist? : ")
                 song_name = input("What is the correct song? : ")
             else:
                 artist = artist_song[0].strip()
-                artist = re.sub("^block\d{,3}/", "", artist)
+                artist = re.sub("^block[0-9]{,3}/", "", artist)
                 song_name = artist_song[1].strip()
-            entry = Song(artist, song_name, file_)
+            entry = Song(artist, song_name, file_.name)
             results.append(entry)
             counter += 1
             print(f"{counter}", end="\r", flush=True)
@@ -83,7 +72,7 @@ def populate_database(name: tarData) -> List[namedtuple]:
 
 def lazy_word_list(name: tarData) -> Generator[List[str], None, None]:
     """Splits words into space delimited units. Yields List."""
-    files = contents2(name)
+    files = tar_contents(name)
     with tarfile.open(name, "r:gz") as tar:
         for file_ in files:
             data = tar.extractfile(file_).read().decode("utf-8")
@@ -92,7 +81,7 @@ def lazy_word_list(name: tarData) -> Generator[List[str], None, None]:
 
 def load_songs(name: tarData) -> [Generator[List[str], None, None], str]:
     """Create generator of songs and file names."""
-    files = contents2(name)
+    files = tar_contents(name)
     with tarfile.open(name, "r:gz") as tar:
         for file_ in files:
             # dirs in archive returned as None
@@ -185,7 +174,7 @@ def add_score_to_db(db: Any, english_score: int, song: str) -> sqlite3.Cursor:
     """Add the english_score to the DB."""
     db, connection = open_db("lyrics.db")
     artist, song = split_name(song)
-    artist = re.sub("^block\d{,3}/", "", artist)
+    artist = re.sub("^block[0-9]{,3}/", "", artist)
     print(f"SEARCH :{english_score} {artist} // {song}")
     connection.execute('''UPDATE songs SET englishScore=? WHERE artist=? AND name=?''', (english_score, artist, song))
     connection.commit()
