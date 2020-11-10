@@ -6,16 +6,18 @@ from timeit import timeit
 
 # custom
 from db_util import (
-        add_score_to_db,
-        english_score,
-#         lazy_word_list,
-        load_songs,
-        normalize_words,
-        open_db,
-        word_list,
-        words_in_dict)
+    add_score_to_db,
+    open_db)
+from metrics_util import (
+    english_score,
+    load_songs,
+    normalize_words,
+    save_word_list,
+    words_in_dict,
+    word_set)
 
 
+# make the timing setup a decorator
 start = time()
 tarname = "2.tar.gz"
 manually_curated = "manually_curated_words.txt"
@@ -23,15 +25,18 @@ dictionary = "/usr/share/dict/web2"
 
  
 #Set up the reference dictionary
-ref_dict = word_list(dictionary)
-ref_dict = [word.lower().strip() for word in ref_dict]
-ref_dict = set(ref_dict)
+# ref_dict = word_list(dictionary)
+# ref_dict = [word.lower().strip() for word in ref_dict]
+# ref_dict = set(ref_dict)
+ref_dict = word_set(dictionary)
+
 
 
 #Set up the manually curated dictionary, after all songs parsed
-bad_words = word_list(manually_curated)
-bad_words = [word.lower().strip() for word in bad_words]
-bad_words = set(bad_words)
+# bad_words = word_list(manually_curated)
+# bad_words = [word.lower().strip() for word in bad_words]
+# bad_words = set(bad_words)
+bad_words = word_set(bad_words)
 
 
 #Open DB
@@ -40,6 +45,7 @@ db, connection = open_db("lyrics.db")
 
 #Gather metrics here
 songs = load_songs(tarname)  # gen of songs
+
 #TODO
 counter = 0
 for song in songs:
@@ -63,16 +69,12 @@ for song in songs:
 connection.commit()
 connection.close()
 
-
-#Save the newly added not_found words
-with open(manually_curated, "w+") as f:
-    for word in bad_words:
-        f.write(f"{word}\n")
+save_word_list(manually_curated)
 
 
+#TODO
 #Read a file from the database
 #give a score and save to DB
-
 
 end = time()
 time_taken = (end-start)/60

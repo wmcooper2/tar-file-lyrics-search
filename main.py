@@ -1,31 +1,26 @@
 # std lib
 import argparse
-import re
-import tarfile
-from typing import Generator, TypeVar
+from typing import Generator
 
 # custom
-from db_util import create_db, get_file_info, search
+from db_util import create_db
+from file_util import get_file_info, search
 
 
-match = TypeVar("match", re.match, None)
-tarData = TypeVar("tar", tarfile.TarFile, None)
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description='Process some integers.')
-#     parser.add_argument('--dbsetup', action='store_true', help="Setup a new database")
-
+    parser = argparse.ArgumentParser(description='Preprocess data files to be used in a larger ML program.')
     setup = parser.add_mutually_exclusive_group()
-    setup.add_argument('--dbpartial', action='store_true', help="Setup a new database")
-    setup.add_argument('--dbpopulate', action='store_true', help="Setup a new database")
-    setup.add_argument('--search', action='store_true', help="Setup a new database")
-    setup.add_argument('--estimatetime', action='store_true', help="Setup a new database")
+    setup.add_argument('--dbpartial', action='store_true', help="Setup a new database with a subset of the total songs.")
+    setup.add_argument('--dbpopulate', action='store_true', help="Populate the DB with all the songs.")
+    setup.add_argument('--search', action='store', nargs=2, type=str, help="Search for a string in the given tar file. Give file then string.")
+    setup.add_argument('--estimatetime', action='store_true', help="Estimate the time required to run the code on the entire collection of songs.")
+    setup.add_argument('--test', action='store_true', help="Run tests.")
 
     args = parser.parse_args()
 
     if args.dbpartial:
-        #Create DB
         db, connection = create_db("lyrics.db")
 #         tarname = "2.tar.gz"
         tarname = "block.tar.gz"
@@ -37,9 +32,7 @@ if __name__ == "__main__":
         connection.close()
 
     if args.dbpopulate:
-        #Create DB
         db, connection = create_db("lyrics.db")
-        
         for x in range(1, 5):  # all the files 
             tarname = f"{str(x)}.tar.gz"
             file_info = get_file_info(tarname)
@@ -50,10 +43,9 @@ if __name__ == "__main__":
         connection.close()
 
     if args.search:
-        print("searching")
-#         search("what is", name)
+        print(f"searching for '{args.search[0]}'")
+        print(f"searching for '{args.search[1]}'")
+        search(args.search[1], args.search[0])
 
     if args.estimatetime:
         print("estimating time to complete")
-
-        
