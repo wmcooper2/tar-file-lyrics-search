@@ -1,5 +1,6 @@
 # std lib
 from collections import defaultdict, namedtuple
+from pathlib import Path
 import re
 import sqlite3
 import string
@@ -14,18 +15,31 @@ tarData = TypeVar("tar", tarfile.TarFile, None)
 Song = namedtuple("Song", ["artist", "name", "filePath"])
 stemmer = PorterStemmer()
 
-
-def create_db(database: str) -> None:
+def db_connect(database: str) -> Any:
     connection = sqlite3.connect(database)
     db = connection.cursor()
-    try:
-        db.execute('''CREATE TABLE songs (artist text, name text, filePath text)''')
-    except sqlite3.OperationalError:
-        print("Table already exists. Skipping table creation")
     return db, connection
 
 
-def open_db(database: str) -> None:
+def create_db(database: str) -> Any:
+    if Path(database).exists():
+        print("Table already exists. Skipping table creation.")
+#         connection = sqlite3.connect(database)
+#         db = connection.cursor()
+        return db_connect(database)
+    else:
+#         connection = sqlite3.connect(database)
+#         db = connection.cursor()
+        db, connection = db_connect(database)
+        try:
+            db.execute('''CREATE TABLE songs (artist text, name text, filePath text)''')
+            print("Created table 'Songs' in DB")
+            return db, connection
+        except sqlite3.OperationalError:
+            print("An error occurred trying to create a table in the DB.")
+
+
+def open_db(database: str) -> Any:
     try:
         connection = sqlite3.connect(database)
         db = connection.cursor()
@@ -47,7 +61,8 @@ def split_name(file_name: str) -> List[str]:
     return split_name.split("_")
 
 
-def populate_database(name: tarData) -> List[namedtuple]:
+#TODO, continue writing tests from here
+def get_file_info(name: tarData) -> List[namedtuple]:
     """Add artist, song name and file path to DB."""
     results = []
     counter = 0
@@ -66,7 +81,8 @@ def populate_database(name: tarData) -> List[namedtuple]:
             entry = Song(artist, song_name, file_.name)
             results.append(entry)
             counter += 1
-            print(f"{counter}", end="\r", flush=True)
+            print(f"Files parsed: {counter}", end="\r", flush=True)
+    print("\n")
     return results
 
 
@@ -178,3 +194,40 @@ def add_score_to_db(db: Any, english_score: int, song: str) -> sqlite3.Cursor:
     print(f"SEARCH :{english_score} {artist} // {song}")
     connection.execute('''UPDATE songs SET englishScore=? WHERE artist=? AND name=?''', (english_score, artist, song))
     connection.commit()
+
+
+def contents(file_: tarData) -> Generator[str, None, str]:
+    """Make a Generator of the tarfile."""
+    with tarfile.open(file_, "r:gz") as tar:
+        for thing in tar:
+            yield thing.name
+
+
+def extract_file_contents(file_name: str, name: tarData) -> bytes:
+    """Get the archived file's contents."""
+    with tarfile.open(name) as tar:
+        data = tar.extractfile(file_name)
+        return data.read().decode("utf-8")
+
+
+def search(pattern: str, name: str) -> match:
+    matches = 0
+    counter = 0
+    with tarfile.open(name=name, mode="r") as tar:
+        for file_ in tar:
+            t = tar.getmember(file_.name)
+            if t.isfile():
+                try:
+                    contents = extract_file_contents(t, name)
+                    res = re.search(pattern, str(contents))
+                    if res != None:
+                        print(f"{matches}/{counter}: {res}", end="\r", flush=True)
+                        matches += 1
+                    else:
+                        print(f"{matches}/{counter}", end="\r", flush=True)
+                except AttributeError:
+                    print("Error: ", file_)
+                except KeyboardInterrupt:
+                    print("Manually quit.")
+                    break
+            counter += 1
