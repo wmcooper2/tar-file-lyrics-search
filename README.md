@@ -8,6 +8,13 @@ Smaller archive "blocks" are available for testing.
 ### Operation
 1. `main.py` is the main file.
     * run as `python3 main.py`
+2. The general process so far is this;
+    1. Populate the db using the tarfiles
+        * ex: `python3 main.py --populatedb 1.tar.gz 2.tar.gz`
+    2. Add the "englishScore" field and its type
+        * ex: `python3 main.py --dbfield englishScore text`
+    3. Calculate an english score and add it to the DB
+        * ex: `python3 main.py --englishscore 1.tar.gz`
 
 
 ### Testing
@@ -31,14 +38,10 @@ Smaller archive "blocks" are available for testing.
     * I though I fixed the naming issues, but they appear to have returned.
 
 
-### Database operations
-* To set up the database with the initial values;
-    * run `python3 populate_database.py`
-    * adds artist name, song name and file path to DB
+### Notes on Database Operations
 * Add fields manually with;
     * `ALTER TABLE songs ADD COLUMN englishScore text;`
+* Delete fields;
     * have to copy data to new table to delete a field...
-* Run through the song lyrics to gather data/calculate metrics with;
-    * `gather_metrics.py`
 * Update a single column single record value;
     * `UPDATE songs SET englishScore=99 WHERE artist="Rihanna";`

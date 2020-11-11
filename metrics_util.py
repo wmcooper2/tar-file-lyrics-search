@@ -66,7 +66,7 @@ def normalize_words(words: List[str]) -> List[str]:
     return remove_all_empty_elements(no_digits)
 
 
-def english_score(song: str, ref_dict: Set[str]) -> int:
+def calculate_english_score(song: str, ref_dict: Set[str]) -> int:
     """Calculate a score based on how many English words were found."""
     normalized = normalize_words(song[0].split())
     found, not_found = words_in_dict(normalized, ref_dict)  # sets

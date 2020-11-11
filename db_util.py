@@ -64,6 +64,6 @@ def add_score_to_db(db: Any, english_score: int, song: str) -> sqlite3.Cursor:
     db, connection = open_db("lyrics.db")
     artist, song = split_name(song)
     artist = re.sub("^block[0-9]{,3}/", "", artist)
-    print(f"SEARCH :{english_score} {artist} // {song}")
-    connection.execute('''UPDATE songs SET englishScore=? WHERE artist=? AND name=?''', (english_score, artist, song))
+#     print(f"SEARCH :{english_score} {artist} // {song}")
+    connection.execute('''UPDATE songs SET englishscore=? WHERE artist=? AND name=?''', (english_score, artist, song))
     connection.commit()
