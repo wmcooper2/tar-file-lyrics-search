@@ -1,10 +1,8 @@
-from db_util import *
+from file_util import *
 import types
-import sqlite3
 
 
 words = word_list("/usr/share/dict/web2")
-db_file = "lyrics.db"
 tar_file = "2.tar.gz"
 
 
@@ -18,13 +16,6 @@ def test_word_list_returns_not_empty():
 
 def test_word_list_elements_are_strings():
     assert all(map(lambda x: type(x) == str, words)) == True
-
-
-def test_open_db_succeeds():
-    db, connection = open_db(db_file)
-    assert type(db) == sqlite3.Cursor
-    assert type(connection) == sqlite3.Connection
-    connection.close()
 
 
 def test_tar_contents_returns_generator():

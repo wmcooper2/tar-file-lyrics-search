@@ -23,53 +23,32 @@ tarname = "2.tar.gz"
 manually_curated = "manually_curated_words.txt"
 dictionary = "/usr/share/dict/web2"
 
- 
-#Set up the reference dictionary
-# ref_dict = word_list(dictionary)
-# ref_dict = [word.lower().strip() for word in ref_dict]
-# ref_dict = set(ref_dict)
+# setup for gathering metrics
 ref_dict = word_set(dictionary)
-
-
-
-#Set up the manually curated dictionary, after all songs parsed
-# bad_words = word_list(manually_curated)
-# bad_words = [word.lower().strip() for word in bad_words]
-# bad_words = set(bad_words)
-bad_words = word_set(bad_words)
-
-
-#Open DB
+bad_words = word_set(manually_curated)
 db, connection = open_db("lyrics.db")
-
-
-#Gather metrics here
 songs = load_songs(tarname)  # gen of songs
 
+
+
 #TODO
+# This whole block's purpose is to calculate a ratio of good English words
 counter = 0
 for song in songs:
-    normalized = normalize_words(song[0].split())
-    found, not_found = words_in_dict(normalized, ref_dict)  # sets
-    score = english_score(len(found), len(not_found))
-    score = int(score * 100)
-    bad_words = not_found.union(bad_words)
+    score = english_score(song, ref_dict)
+#     bad_words = not_found.union(bad_words)
+#     add_score_to_db(db, score, song[1])
 
-    #Insert new metrics into new DB field
-    #Make sure you add a field manually first
-    add_score_to_db(db, score, song[1])
-
-    #for testing
+# testing
     counter += 1
-
-    if counter >= 1:
+    if counter >= 5:
         break
 
 #Close DB
 connection.commit()
 connection.close()
 
-save_word_list(manually_curated)
+# save_word_list(manually_curated, bad_words)
 
 
 #TODO

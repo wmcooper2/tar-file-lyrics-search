@@ -1,6 +1,7 @@
 # std lib
 from collections import namedtuple
 import re
+import string
 import tarfile
 from typing import Any, Generator, List, TypeVar
 
@@ -107,15 +108,15 @@ def extract_file_contents(file_name: str, name: tarData) -> bytes:
         return data.read().decode("utf-8")
 
 
-def search(pattern: str, name: str) -> match:
+def search(pattern: str, file_: str) -> match:
     matches = 0
     counter = 0
-    with tarfile.open(name=name, mode="r") as tar:
+    with tarfile.open(name=file_, mode="r") as tar:
         for file_ in tar:
             t = tar.getmember(file_.name)
             if t.isfile():
                 try:
-                    contents = extract_file_contents(t, name)
+                    contents = extract_file_contents(t, file_)
                     res = re.search(pattern, str(contents))
                     if res != None:
                         print(f"{matches}/{counter}: {res}", end="\r", flush=True)

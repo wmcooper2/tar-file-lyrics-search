@@ -3,7 +3,7 @@ import argparse
 from typing import Generator
 
 # custom
-from db_util import create_db
+from db_util import create_db, add_column
 from file_util import get_file_info, search
 
 
@@ -14,9 +14,10 @@ if __name__ == "__main__":
     setup = parser.add_mutually_exclusive_group()
     setup.add_argument('--dbpartial', action='store_true', help="Setup a new database with a subset of the total songs.")
     setup.add_argument('--dbpopulate', action='store_true', help="Populate the DB with all the songs.")
-    setup.add_argument('--search', action='store', nargs=2, type=str, help="Search for a string in the given tar file. Give file then string.")
+    setup.add_argument('--search', action='store', nargs=2, type=str, metavar=("PATTERN", "TARFILE"), help="Search for PATTERN in TARFILE.")
     setup.add_argument('--estimatetime', action='store_true', help="Estimate the time required to run the code on the entire collection of songs.")
     setup.add_argument('--test', action='store_true', help="Run tests.")
+    setup.add_argument('--dbfield', action='store', nargs=2, type=str, metavar=("NAME", "TYPE"), help="Add a column to the DB with label NAME and type TYPE.")
 
     args = parser.parse_args()
 
@@ -45,7 +46,11 @@ if __name__ == "__main__":
     if args.search:
         print(f"searching for '{args.search[0]}'")
         print(f"searching for '{args.search[1]}'")
-        search(args.search[1], args.search[0])
+        search(args.search[0], args.search[1])
 
     if args.estimatetime:
         print("estimating time to complete")
+
+    if args.dbfield:
+        print(args.dbfield)
+        add_column(args.dbfield[0], args.dbfield[1])

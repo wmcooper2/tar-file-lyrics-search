@@ -1,12 +1,25 @@
 # std lib
-from typing import Set
+from collections import namedtuple
+import re
+import tarfile
+from typing import Generator, List, Set, TypeVar
 
 # 3rd party
-from nltk.stem.porter import *
+# from nltk.stem.porter import *
+from nltk.stem.porter import PorterStemmer
 
 # custom
-from db_util import word_list
-from file_util import tar_contents
+from file_util import (
+    remove_all_punct,
+    remove_all_digits,
+    remove_all_empty_elements,
+    tar_contents,
+    word_list)
+
+
+tarData = TypeVar("tar", tarfile.TarFile, None)
+match = TypeVar("match", re.match, None)
+Song = namedtuple("Song", ["artist", "name", "filePath"])
 
 
 stemmer = PorterStemmer()
@@ -21,13 +34,13 @@ def save_word_list(file_: str, words: Set[str]) -> None:
 
 def word_set(dict_: str) -> Set[str]:
     """Return a normalized set of words from the 'dict_'."""
-    ref_dict = word_list(dict_)
-    ref_dict = [word.lower().strip() for word in ref_dict]
-    ref_dict = set(ref_dict)
+    dict_ = word_list(dict_)
+    dict_ = [word.lower().strip() for word in dict_]
+    return set(dict_)
 
 
 def words_in_dict(list_: Set[str], dict_: Set[str]) -> [Set[str], Set[str]]:
-    """Determine which words are and are not in dict_."""
+    """Determine which words from list_ are in dict_."""
     not_found = set()
     found = set()
     for word in list_:
@@ -53,9 +66,14 @@ def normalize_words(words: List[str]) -> List[str]:
     return remove_all_empty_elements(no_digits)
 
 
-def english_score(found: int, not_found: int) -> float:
-    """Calculate a ratio of how many words were found."""
-    return round(found / (found + not_found), 2)
+def english_score(song: str, ref_dict: Set[str]) -> int:
+    """Calculate a score based on how many English words were found."""
+    normalized = normalize_words(song[0].split())
+    found, not_found = words_in_dict(normalized, ref_dict)  # sets
+    amt_found = len(found)
+    amt_not_found = len(not_found)
+    score = round(amt_found / (amt_found + amt_not_found), 2)
+    return int(score * 100)
 
 
 def load_songs(name: tarData) -> [Generator[List[str], None, None], str]:

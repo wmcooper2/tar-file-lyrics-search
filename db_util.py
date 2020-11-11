@@ -49,6 +49,16 @@ def find_record(artist_name: str, song_name: str) -> str:
     return connection.execute(f"SELECT * FROM songs WHERE artist=? AND name=?", (artist_name, song_name))
 
 
+
+#TODO, write tests from here
+def add_column(name: str, type_: str) -> None:
+    """Add a column to SQL DB."""
+    db, connection = open_db("lyrics.db")
+    connection.execute(f'''ALTER TABLE songs ADD {name} {type_};''')
+    connection.commit()
+    connection.close()
+
+
 def add_score_to_db(db: Any, english_score: int, song: str) -> sqlite3.Cursor:
     """Add the english_score to the DB."""
     db, connection = open_db("lyrics.db")
