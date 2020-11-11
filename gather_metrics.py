@@ -33,11 +33,12 @@ def add_english_score_to_db(tarname: str):
         score = calculate_english_score(song, ref_dict)
     #     bad_words = not_found.union(bad_words)
         add_score_to_db(db, score, song[1])
+        counter += 1
+        print(f"Songs scored : {counter}", end="\r", flush=True)
 
     # testing
-        counter += 1
-        if counter >= 5:
-            break
+#         if counter >= 5:
+#             break
 
     #Close DB
     connection.commit()
