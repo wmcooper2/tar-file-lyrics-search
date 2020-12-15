@@ -1,9 +1,17 @@
-from db_util import *
-# import types
+# std lib
 import sqlite3
 
+# custom
+from constants import TARS
+# from db_util import *
+from db_util import (
+    db_connect,
+    open_db,
+    find_record)
 
-db_file = "lyrics.db"
+
+db_file = "testing.db"
+compressed_tarball = f"{TARS}testing_uncompressed.tar"
 
 
 def test_db_connect_returns_cursor_object():
@@ -35,3 +43,4 @@ def test_create_db_returns_cursor_and_connection_objects():
 def test_find_record_returns_empty_list_if_not_found():
     result = find_record("notindb", "definitelynotindb")
     assert result.fetchall() == []
+

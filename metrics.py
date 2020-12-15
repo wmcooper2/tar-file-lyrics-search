@@ -16,6 +16,30 @@ from metrics_util import (
     word_set)
 
 
+
+# def english_score(tarname: str):
+#     """Add a score to the DB based on the ratio of English words found in 'tarname' files."""
+#     manually_curated = "manually_curated_words.txt"
+#     dictionary = "/usr/share/dict/web2"
+
+    # setup for gathering metrics
+#     ref_dict = word_set(dictionary)
+#     bad_words = word_set(manually_curated)
+#     songs = load_songs(tarname)  # gen songs
+
+#     counter = 0
+#     for song in songs:
+#         score = calculate_english_score(song, ref_dict)
+    #     bad_words = not_found.union(bad_words)
+#         add_score_to_db(db, score, song[1])
+#         counter += 1
+#         print(f"Songs scored : {counter}", end="\r", flush=True)
+
+    # testing
+#         if counter >= 5:
+#             break
+
+
 def add_english_score_to_db(tarname: str):
     """Add a score to the DB based on the ratio of English words found in 'tarname' files."""
     manually_curated = "manually_curated_words.txt"
