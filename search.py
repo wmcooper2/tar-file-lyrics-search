@@ -24,15 +24,16 @@ from metrics_util import edit_distance
 from file_util import remove_all_digits, remove_all_punct
 
 
-tarData = TypeVar("tar", tarfile.TarFile, None)
+Args = TypeVar("Args", argparse.Namespace, None)
 match = TypeVar("match", re.match, None)
 Song = namedtuple("Song", ["artist", "name"])
+tarData = TypeVar("tar", tarfile.TarFile, None)
 
 #TODO
 # check if a search was already performed by looking for the search string in the title of the results file then ask the user if they want to proceed.
 # are the --song and --lyrics options the same thing?
 
-def artist_search(songs, members):
+def artist_search(songs: tarData, members: List):
     request = input("What artist? ")
     member_count = len(members)
 
@@ -55,7 +56,8 @@ def artist_search(songs, members):
 
         #songs may share the same name, keep all
         results[member[1].name] = edit_score
-        print(f"{member[0]}/{member_count}", end="\r", flush=True)
+#         print(f"{member[0]}/{member_count}", end="\r", flush=True)
+#         print(f"{member[0]}/{member_count}\r")
 
     #sort list of matches by value
     results = list(results.items())
@@ -71,7 +73,7 @@ def artist_search(songs, members):
     print(tabulate(top_100[:10], headers=["Artist_Song", "Edit Distance"]))
 
 
-def lyric_search(songs, members):
+def lyric_search(songs: tarData, members: List):
     """Search for the lyrics of a song."""
     request = input("What song? ")
     member_count = len(members)
@@ -96,7 +98,8 @@ def lyric_search(songs, members):
         #songs may share the same name, keep all
         artist, song = member[1].name.rstrip(".txt").split("_")
         results.append((artist, song, edit_score))
-        print(f"{member[0]}/{member_count}", end="\r", flush=True)
+#         print(f"{member[0]}/{member_count}", end="\r", flush=True)
+#         print(f"{member[0]}/{member_count}\r")
 
     top_100 = sorted(results, key=lambda x: x[2])
     last_100 = top_100[-100:]
@@ -131,12 +134,12 @@ def lyric_search(songs, members):
             print("Choose one of [veq].")
 
 
-def interactive_search(args):
+def interactive_search():
     """An interactive search tool."""
     print("Collecting archives...")
-    options = ["artist", "song", "lyrics", "regex", "sentence", "sentence list"]
-#     songs = tarfile.open(ENG_TARBALL)
-    songs = tarfile.open(UNCOMPRESSED_TESTING)
+    options = ["artist", "song", "lyrics", "regex", "sentence"]
+    songs = tarfile.open(ENG_TARBALL)
+#     songs = tarfile.open(UNCOMPRESSED_TESTING)
     members = songs.getmembers()
 
     while True:
@@ -152,9 +155,6 @@ def interactive_search(args):
             regex_search(songs, members)
         elif user_answer == "sentence":
             sentence_search(songs, members)
-            print("searching for sentence")
-        elif user_answer == "sentence list":
-            print("searching for sentence list")
         elif user_answer == "q":
             break
         else:
@@ -163,7 +163,7 @@ def interactive_search(args):
     quit()
 
 
-def song_search(songs, members):
+def song_search(songs: tarData, members: List):
     """Search for the title of a song."""
     request = input("What song? ")
     member_count = len(members)
@@ -187,7 +187,8 @@ def song_search(songs, members):
 
         #songs may share the same name, keep all
         results[member[1].name] = edit_score
-        print(f"{member[0]}/{member_count}", end="\r", flush=True)
+#         print(f"{member[0]}/{member_count}", end="\r", flush=True)
+#         print(f"{member[0]}/{member_count}\r")
 
     #sort list of matches by value
     results = list(results.items())
@@ -203,7 +204,7 @@ def song_search(songs, members):
     print(tabulate(top_100[:10], headers=["Artist_Song", "Edit Distance"]))
 
 
-def regex_search(songs, members):
+def regex_search(songs: tarData, members: List):
     """Basically, this block is supposed to be the same as a regular sentence search,
         but uses a case-insensitive regex in its place."""
     regex = input("Enter a regex: ")
@@ -220,7 +221,8 @@ def regex_search(songs, members):
         match_count = len(pattern.findall(lyrics))
 
         #save count of all occurrences in list, use bisect to insert based on count
-        print(f"{member[0]}/{member_count}", end="\r", flush=True)
+#         print(f"{member[0]}/{member_count}", end="\r", flush=True)
+#         print(f"{member[0]}/{member_count}\r")
 
         # if any matches
         if match_count > 0:
@@ -247,7 +249,7 @@ def regex_search(songs, members):
     print(f"\nSearch for '{regex}' finished.")
 
 
-def sentence_search(songs, members):
+def sentence_search(songs: tarData, members: List):
     """Search for exact sentence or exact word."""
     request = input("What sentence/word are you looking for? ")
 #     songs = tarfile.open(ENG_TARBALL)
@@ -264,7 +266,8 @@ def sentence_search(songs, members):
         match_count = len(pattern.findall(lyrics))
 
         #save count of all occurrences in list, use bisect to insert based on count
-        print(f"{member[0]}/{member_count}", end="\r", flush=True)
+#         print(f"{member[0]}/{member_count}", end="\r", flush=True)
+#         print(f"{member[0]}/{member_count}\r")
 
         # if any matches
         if match_count > 0:
@@ -323,7 +326,8 @@ def sentence_list_search():
             match_count = len(pattern.findall(lyrics))
 
             #save count of all occurrences in list, use bisect to insert based on count
-            print(f"{member[0]}/{member_count}", end="\r", flush=True)
+#             print(f"{member[0]}/{member_count}", end="\r", flush=True)
+#             print(f"{member[0]}/{member_count}\r")
 
             # if any matches
             if match_count > 0:
@@ -347,7 +351,8 @@ def sentence_list_search():
                     writer.writerow(row)
                 except:
                     continue
-        print(f"\nSearch for '{sentence}' finished.", end="\n", flush=True)
+#         print(f"\nSearch for '{sentence}' finished.", end="\n", flush=True)
+#         print(f"\nSearch for '{sentence}' finished.\r")
     songs.close()
 
 
@@ -381,7 +386,8 @@ def vocab_list_search():
         #save in dictionary
         name = member[1].name.rstrip(".txt")
         results[name] += match_ratio
-        print(f"{member[0]}/{member_count}", end="\r", flush=True)
+#         print(f"{member[0]}/{member_count}", end="\r", flush=True)
+#         print(f"{member[0]}/{member_count}\r")
 
     #sort list of matches by value
     results = list(results.items())
@@ -415,29 +421,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="Search" ,formatter_class=argparse.RawDescriptionHelpFormatter, description=how_to_use)
 
     group = parser.add_mutually_exclusive_group()
-#     group.add_argument("--artist", action="store", nargs=1, type=str, metavar=("ARTIST"), help="Search for a specfic ARTIST.")
-#     group.add_argument("--lyrics", action="store", nargs=1, type=str, metavar=("SONG"), help="Search for a specfic SONG's lyrics and print to terminal.")
     group.add_argument("--interactive", action="store_true", help="Run the search program interactively.")
-#     group.add_argument("--song", action="store", nargs=1, type=str, metavar=("SONG"), help="Search for a specfic SONG.")
-#     group.add_argument("--regex", action="store", nargs=2, type=str, metavar=("REGEX", "STRING"), help="Search for a grammar pattern using the given REGEX and save to results/STRING.")
-#     group.add_argument("--sentence", action="store", nargs=1, type=str, metavar=("STRING"), help="Search for a specfic STRING.")
     group.add_argument("--sentencelist", action="store", nargs="?", type=argparse.FileType("r"), metavar=("FILE"), help="Search for a list of specfic strings.")
     group.add_argument("--vocablist", action="store", nargs="?", type=argparse.FileType("r"), metavar=("FILE"), help="Search for a list of vocab words from FILE")
 
+    group.add_argument("--cprofile", action="store_true", help="Run cProfile. Uncomment the code, then run.")
+
     args = parser.parse_args()
-
-#     pass opened tarball and args from argparse
-#     if args.artist:
-#         print("Collecting archives...")
-#         songs = tarfile.open(ENG_TARBALL)
-#         members = songs.getmembers()
-#         artist_search(args, songs, members)
-
-#     elif args.lyrics:
-#         print("Collecting archives...")
-#         songs = tarfile.open(ENG_TARBALL)
-#         members = songs.getmembers()
-#         lyric_search(args, songs, members)
 
     if args.interactive:
         interactive_search(args)
@@ -447,3 +437,17 @@ if __name__ == "__main__":
 
     elif args.vocablist:
         vocab_list_search()
+
+    elif args.cprofile:
+        import cProfile
+        print("Collecting archives...")
+        songs = tarfile.open(ENG_TARBALL)
+        members = songs.getmembers()
+#         songs = tarfile.open(UNCOMPRESSED_TESTING)
+        
+        print("Profiling...")
+#         cProfile.run("artist_search(songs, members)", filename=f"profile_results/artist_search_{datetime.utcnow()}")
+        cProfile.run("lyric_search(songs, members)", filename=f"profile_results/lyric_search_{datetime.utcnow()}")
+#         cProfile.run("song_search(songs, members)", filename=f"profile_results/song_search_{datetime.utcnow()}"))
+#         cProfile.run("regex_search(songs, members)", filename=f"profile_results/regex_search_{datetime.utcnow()}"))
+#         cProfile.run("sentence_search(songs, members)", filename=f"profile_results/sentence_search_{datetime.utcnow()}"))
