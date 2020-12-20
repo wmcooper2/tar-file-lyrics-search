@@ -29,10 +29,12 @@ match = TypeVar("match", re.match, None)
 Song = namedtuple("Song", ["artist", "name"])
 tarData = TypeVar("tar", tarfile.TarFile, None)
 
+
 #TODO
 # check if a search was already performed by looking for the search string in the title of the results file then ask the user if they want to proceed.
 # are the --song and --lyrics options the same thing?
 
+@profile
 def artist_search(songs: tarData, members: List):
     request = input("What artist? ")
     member_count = len(members)
@@ -252,8 +254,8 @@ def regex_search(songs: tarData, members: List):
 def sentence_search(songs: tarData, members: List):
     """Search for exact sentence or exact word."""
     request = input("What sentence/word are you looking for? ")
-#     songs = tarfile.open(ENG_TARBALL)
-    songs = tarfile.open(UNCOMPRESSED_TESTING)
+    songs = tarfile.open(ENG_TARBALL)
+#     songs = tarfile.open(UNCOMPRESSED_TESTING)
     pattern = re.compile(request, re.IGNORECASE)
     member_count = len(members)
 
@@ -445,9 +447,16 @@ if __name__ == "__main__":
         members = songs.getmembers()
 #         songs = tarfile.open(UNCOMPRESSED_TESTING)
         
-        print("Profiling...")
-#         cProfile.run("artist_search(songs, members)", filename=f"profile_results/artist_search_{datetime.utcnow()}")
-        cProfile.run("lyric_search(songs, members)", filename=f"profile_results/lyric_search_{datetime.utcnow()}")
-#         cProfile.run("song_search(songs, members)", filename=f"profile_results/song_search_{datetime.utcnow()}"))
-#         cProfile.run("regex_search(songs, members)", filename=f"profile_results/regex_search_{datetime.utcnow()}"))
-#         cProfile.run("sentence_search(songs, members)", filename=f"profile_results/sentence_search_{datetime.utcnow()}"))
+#CPROFILE
+#         print("Profiling...")
+#         cProfile.run("artist_search(songs, members)", filename=f"profile_results/artist_search_{datetime.utcnow()}.stats")
+#         cProfile.run("lyric_search(songs, members)", filename=f"profile_results/lyric_search_{datetime.utcnow()}.stats")
+#         cProfile.run("song_search(songs, members)", filename=f"profile_results/song_search_{datetime.utcnow()}.stats"))
+#         cProfile.run("regex_search(songs, members)", filename=f"profile_results/regex_search_{datetime.utcnow()}.stats"))
+#         cProfile.run("sentence_search(songs, members)", filename=f"profile_results/sentence_search_{datetime.utcnow()}.stats"))
+
+#LINE_PROFILER (kernprof)
+print("Using line_profiler...")
+songs = tarfile.open(ENG_TARBALL)
+members = songs.getmembers()
+artist_search(songs, members)

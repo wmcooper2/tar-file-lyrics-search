@@ -28,8 +28,6 @@ def calculate_english_score(lyrics: str, ref_dict: Set[str]) -> int:
     """Calculate a score based on how many English words were found."""
     try:
         normalized = normalize_words(lyrics.split())
-#         normalized = normalize_words(lyrics.read().split())
-#         normalized = normalize_words(lyrics[0].split())
         found, not_found = words_in_dict(normalized, ref_dict)  # sets
         amt_found = len(found)
         amt_not_found = len(not_found)
@@ -61,9 +59,6 @@ def edit_distance(s1: str, s2: str) -> int:
 def load_songs2(name: tarData) -> Generator[List[str], None, None]:
     """Create generator of songs and file names."""
     files = tar_contents(name)
-#     try:
-#     with tarfile.open(name, "r:gz") as tar:
-#     with tarfile.open(name, "r") as tar:
     with tarfile.open(name, "r", ignore_zeros=True) as tar:
         for file_ in files:
             # dirs in archive returned as None
@@ -73,16 +68,11 @@ def load_songs2(name: tarData) -> Generator[List[str], None, None]:
             else: 
                 result = extracted.read().decode("utf-8")
                 yield result, file_.name  # gen, TarInfo.name
-#     except tarfile.ReadError:
-#         return None
 
 
 def load_songs(name: tarData) -> [Generator[List[str], None, None], str]:
     """Create generator of songs and file names."""
     files = tar_contents(name)
-#     try:
-#     with tarfile.open(name, "r:gz") as tar:
-#     with tarfile.open(name, "r") as tar:
     with tarfile.open(name, "r", ignore_zeros=True) as tar:
         for file_ in files:
             # dirs in archive returned as None
@@ -92,8 +82,6 @@ def load_songs(name: tarData) -> [Generator[List[str], None, None], str]:
             else: 
                 result = extracted.read().decode("utf-8")
                 yield result, file_.name  # gen, TarInfo.name
-#     except tarfile.ReadError:
-#         return None
 
 
 def load_uncompressed_tarball(name: tarData) -> [Generator[List[str], None, None], str]:

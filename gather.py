@@ -260,7 +260,7 @@ if __name__ == "__main__":
                 lyrics = list(lyrics.split("\n"))
 #                 lyrics = list(map(lambda x: x.strip(), lyrics))
                 #Added this to try and prevent the issue of stripping off the final "t"
-                lyrics = list(map(lambda x: re.sub("txt", "", x), lyrics))
+                lyrics = list(map(lambda x: re.sub("\.txt", "", x), lyrics))
 
                 #Save
                 lyrics_scraped.write(song_url+"\n")
@@ -271,11 +271,6 @@ if __name__ == "__main__":
                     tar.addfile(info, io.BytesIO(data))
                 lyrics_scraped.write(song_url+"\n")
 
-            #Handle exceptions
-#             except AttributeError:
-#                 save_append_line(link, LYRIC_ERRORS)
-#             except IndexError:
-#                 save_append_line(link, LYRIC_ERRORS)
             except KeyboardInterrupt:
                 print("\nManually interrupted. Quitting....")
                 lyrics_errors.write(song_url+"\n")

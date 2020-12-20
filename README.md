@@ -91,3 +91,46 @@ from_text = timeit("load_text", number=10000, globals=globals())
 28.31266689134962
 ```
 
+## Profiling
+Using `cProfile`;
+    1. run `python3 setup.py build_ext --inplace`
+    2. `cProfile.run("lyric_search(songs, members)", filename=f"profile_results/lyric_search_{datetime.utcnow()}.stats")`
+    3. results are saved in `profile_results/lyric_search_<timestamp>.stats`
+
+Using `SnakeVix`;
+    1. use the profile created with cProfile
+    2. run `snakeviz profile_results/<name of profile>`
+
+Using `line_profiler`;
+    1. mark the function you want to profile with a decorator: `@profile`
+    2. run `kernprof -l -v your_module.py`
+    
+Using `pstats`;
+    1. open a python3 shell
+    2. run this;
+        ```python
+            import pstats
+            p = pstats.Stats("<name of profile>")
+            p.print_stats()
+        ```
+
+Using `memory_profiler`;
+    source; https://pypi.org/project/memory-profiler/
+    1. T
+
+
+General Process;
+    1. Start with cProfile and use the high level view to guide which functions to profile with `line_profiler` or other profilers
+        * run `python3 setup.py build_ext --inplace` to compile
+    2. run this within your code to profile a specific function;
+        * Example, to profile the `lyric_search` function and save in `filename`
+
+## Errors
+```python
+>>>(venv) cooper@Coopers-MacBook-Air tarFileLyricSearch % python3 setup.py build_ext --inplace
+...running build_ext
+...copying build/lib.macosx-10.9-x86_64-3.9/customEnglish/tarFileLyricSearch/search.cpython-39-darwin.so -> customEnglish/tarFileLyricSearch
+...error: could not create 'customEnglish/tarFileLyricSearch/search.cpython-39-darwin.so': No such file or directory
+
+# deleting __init__.py in the same directory solved the problem
+```
