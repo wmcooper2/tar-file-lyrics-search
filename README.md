@@ -97,13 +97,14 @@ Using `cProfile`;
     2. `cProfile.run("lyric_search(songs, members)", filename=f"profile_results/lyric_search_{datetime.utcnow()}.stats")`
     3. results are saved in `profile_results/lyric_search_<timestamp>.stats`
 
-Using `SnakeVix`;
+Using `SnakeViz`;
     1. use the profile created with cProfile
     2. run `snakeviz profile_results/<name of profile>`
 
 Using `line_profiler`;
     1. mark the function you want to profile with a decorator: `@profile`
     2. run `kernprof -l -v your_module.py`
+    3. view the results with: `python -m line_profiler your_profile.py.lprof`
     
 Using `pstats`;
     1. open a python3 shell
@@ -116,7 +117,8 @@ Using `pstats`;
 
 Using `memory_profiler`;
     source; https://pypi.org/project/memory-profiler/
-    1. T
+    1. mark the function you want to profile with a decorator: `@profile`
+    2. run `python3 -m memory_profiler your_module.py`
 
 
 General Process;

@@ -456,7 +456,8 @@ if __name__ == "__main__":
 #         cProfile.run("sentence_search(songs, members)", filename=f"profile_results/sentence_search_{datetime.utcnow()}.stats"))
 
 #LINE_PROFILER (kernprof)
-print("Using line_profiler...")
+print("Loading tarball...")
 songs = tarfile.open(ENG_TARBALL)
 members = songs.getmembers()
+print("Profiling...")
 artist_search(songs, members)
