@@ -170,8 +170,7 @@ def remove_all(char: str, list_: List[str]) -> List[str]:
 
 def remove_all_digits(word: str) -> str:
     """Removes all digits from word."""
-    digits = string.digits
-    for num in digits:
+    for num in string.digits:
         word = remove_all(num, list(word))
     return "".join(word)
 
@@ -185,8 +184,7 @@ def remove_all_empty_elements(list_: List[Any]) -> List[Any]:
 
 def remove_all_punct(word: str) -> str:
     """Removes all punctuation from word."""
-    punct = string.punctuation
-    for char in punct:
+    for char in string.punctuation:
         word = remove_all(char, list(word))
     return "".join(word)
 
@@ -194,14 +192,14 @@ def remove_all_punct(word: str) -> str:
 def make_tar_file(dir_: str, tarname: str) -> tarData:
     """Make the contents of dir_ into a tarball."""
     tar = tarfile.open(tarname, mode="a")
-#     for f in Path(dir_).iterdir():
-    counter = 0
-#     for f in Path(dir_).glob("**/*.txt"):
-    for f in Path(dir_).glob("*.txt"):
-        tar.add(str(f))
-        counter += 1
-        print(f"Files added to tar: {counter}", end="\r", flush=True)
+#     counter = 0
+#     for f in Path(dir_).glob("*.txt"):
+    for f in enumerate(Path(dir_).glob("*.txt")):
+        tar.add(str(f[1]))
+#         counter += 1
+        print(f"Files added to tar: {f[0]}", end="\r", flush=True)
     tar.close()
+    #TODO, return tar?, but it's closed, right? So, why?
     return tar
 
 

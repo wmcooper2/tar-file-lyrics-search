@@ -6,7 +6,6 @@ import os
 from pathlib import Path
 from pprint import pprint
 import tarfile
-# from textwrap import dedent
 from textwrap import wrap
 from typing import Generator
 
@@ -26,7 +25,6 @@ from file_util import (
     remove_all_punct,
     search,
     tar_contents)
-# from metrics import add_english_score_to_db
 from metrics_util import calculate_english_score, load_songs, word_set
 
 
@@ -39,8 +37,6 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=how_to_use)
     group = parser.add_mutually_exclusive_group()
-#     group.add_argument("--estimatetime", action="store_true", help="Estimate the time required to run the code on the entire collection of songs.")
-    group.add_argument("--copytocluster", action="store_true", help="Copy the subdivided tarballs to the cluster nodes.")
     group.add_argument("--checknames", action="store_true", help="Show how the names of the TarInfo objects conform to my naming convention (see README).")
     group.add_argument("--dbfield", action="store", nargs=2, type=str, metavar=("NAME", "TYPE"), help="Add a column to the DB with label NAME and type TYPE.")
     group.add_argument("--dividetarball", action="store", nargs=2, type=str, metavar=("TARBALL", "NUM"), help="Subdivide TARBALL into NUM smaller tarballs.")
@@ -50,6 +46,9 @@ if __name__ == "__main__":
 
 
     args = parser.parse_args()
+    
+
+#POPULATE DB
     if args.popdb:
         if path(args.popdb[1]).exists():
             print("DB already exists. quitting...")
@@ -63,16 +62,15 @@ if __name__ == "__main__":
             connection.commit()
             connection.close()
 
-    #todo, move this into a separate cli tool
-#     elif args.estimatetime:
-#         print("estimating time to complete")
 
+#ADD DB FIELD
     elif args.dbfield:
         add_column(args.dbfield[0], args.dbfield[1])
         print(f"Added {args.dbfield[0]} column as type {args.dbfield[1]}")
 
+
+#FILTER NON ENGLISH SONGS
     #TODO, something is wrong with how the tarball is created.
-    # I think where the TarInfo objects are supposed to go are the actual data files...
     elif args.englishfilter:
         tarname = args.englishfilter[0]
         user_score = int(args.englishfilter[1])
@@ -108,6 +106,7 @@ if __name__ == "__main__":
         pprint(results)
 
 
+#DIVIDE TARBALLS
     elif args.dividetarball:
         print(args.dividetarball)
         quit()
@@ -118,9 +117,9 @@ if __name__ == "__main__":
         assert type(amt) == int
         divide_tarball(name, amt)
 
+
+#MAKE VOCABULARY TARBALLS
     elif args.vocab:
-        #require the english only tarball
-#         assert Path(ENG_TARBALL).exists()
         print(f"Opening '{args.vocab[0]}' and '{VOCAB_TARBALL}' ...")
         english_tarball = tarfile.open(args.vocab[0], mode="r")
         vocab_tarball = tarfile.open(VOCAB_TARBALL, mode="w")
@@ -162,9 +161,6 @@ if __name__ == "__main__":
 #                 quit()
         english_tarball.close()
         vocab_tarball.close()
-
-    elif args.copytocluster:
-        print("copying to cluster")
 
 
     #TODO, shouldn't this be part of the code that makes the english_only tarball?

@@ -16,6 +16,14 @@ from metrics_util import (
     word_set)
 
 
+#ARGPARSE
+#     group.add_argument("--estimatetime", action="store_true", help="Estimate the time required to run the code on the entire collection of songs.")
+
+    #todo, move this into a separate cli tool
+#     elif args.estimatetime:
+#         print("estimating time to complete")
+
+
 
 # def english_score(tarname: str):
 #     """Add a score to the DB based on the ratio of English words found in 'tarname' files."""

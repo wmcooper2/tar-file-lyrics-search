@@ -53,6 +53,7 @@ DICTIONARY = "/usr/share/dict/web2"
 CLEAN_DESC = SUPPORT_DIR + "clean_description.txt"
 GATHER_DESC = SUPPORT_DIR + "gather_description.txt"
 SEARCH_DESC = SUPPORT_DIR + "search_description.txt"
+SEARCH_EPILOG = SUPPORT_DIR + "search_epilog.txt"
 
 #Tarballs
 VOCAB_TARBALL = f"{TARS}vocabulary.tar"

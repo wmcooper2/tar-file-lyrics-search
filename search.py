@@ -18,6 +18,7 @@ from constants import (
     ENG_TARBALL,
     RESULTS,
     SEARCH_DESC,
+    SEARCH_EPILOG,
     UNCOMPRESSED_TESTING,
     VOCAB_TARBALL)
 from metrics_util import edit_distance
@@ -34,7 +35,7 @@ tarData = TypeVar("tar", tarfile.TarFile, None)
 # check if a search was already performed by looking for the search string in the title of the results file then ask the user if they want to proceed.
 # are the --song and --lyrics options the same thing?
 
-@profile
+# @profile
 def artist_search(songs: tarData, members: List):
     request = input("What artist? ")
     member_count = len(members)
@@ -45,7 +46,7 @@ def artist_search(songs: tarData, members: List):
     user_request = remove_all_punct(user_request)
     user_request = user_request.lower()
 
-    results = defaultdict(int)
+    results = []
     for member in enumerate(members):
         #Clean up title
         artist, song = member[1].name.rstrip(".txt").split("_")
@@ -57,13 +58,12 @@ def artist_search(songs: tarData, members: List):
         edit_score = edit_distance(user_request, artist)
 
         #songs may share the same name, keep all
-        results[member[1].name] = edit_score
-#         print(f"{member[0]}/{member_count}", end="\r", flush=True)
-#         print(f"{member[0]}/{member_count}\r")
+        artist, song = member[1].name.rstrip(".txt").split("_")
+        results.append((artist, song, edit_score))
+        print(f"{member[0]}/{member_count}", end="\r", flush=True)
 
     #sort list of matches by value
-    results = list(results.items())
-    top_100 = sorted(results, key=lambda x: x[1])
+    top_100 = sorted(results, key=lambda x: x[2])
     top_100 = top_100[:100]
 
     #Save to results/
@@ -72,7 +72,8 @@ def artist_search(songs: tarData, members: List):
         save_to.write(tabulate(top_100))
 
     print("\nA smaller Edit Distance means a closer match.")
-    print(tabulate(top_100[:10], headers=["Artist_Song", "Edit Distance"]))
+    top_10 = top_100[:10]
+    print(tabulate((top_10), headers=["Artist", "Song", "Edit Distance"]))
 
 
 def lyric_search(songs: tarData, members: List):
@@ -100,8 +101,7 @@ def lyric_search(songs: tarData, members: List):
         #songs may share the same name, keep all
         artist, song = member[1].name.rstrip(".txt").split("_")
         results.append((artist, song, edit_score))
-#         print(f"{member[0]}/{member_count}", end="\r", flush=True)
-#         print(f"{member[0]}/{member_count}\r")
+        print(f"{member[0]}/{member_count}", end="\r", flush=True)
 
     top_100 = sorted(results, key=lambda x: x[2])
     last_100 = top_100[-100:]
@@ -176,7 +176,7 @@ def song_search(songs: tarData, members: List):
     user_request = remove_all_punct(user_request)
     user_request = user_request.lower()
 
-    results = defaultdict(int)
+    results = []
     for member in enumerate(members):
         #Clean up title
         artist, song = member[1].name.rstrip(".txt").split("_")
@@ -188,13 +188,12 @@ def song_search(songs: tarData, members: List):
         edit_score = edit_distance(user_request, song)
 
         #songs may share the same name, keep all
-        results[member[1].name] = edit_score
-#         print(f"{member[0]}/{member_count}", end="\r", flush=True)
-#         print(f"{member[0]}/{member_count}\r")
+        artist, song = member[1].name.rstrip(".txt").split("_")
+        results.append((artist, song, edit_score))
+        print(f"{member[0]}/{member_count}", end="\r", flush=True)
 
     #sort list of matches by value
-    results = list(results.items())
-    top_100 = sorted(results, key=lambda x: x[1])
+    top_100 = sorted(results, key=lambda x: x[2])
     top_100 = top_100[:100]
 
     #Save to results/
@@ -203,7 +202,8 @@ def song_search(songs: tarData, members: List):
         save_to.write(tabulate(top_100))
 
     print("\nA smaller Edit Distance means a closer match.")
-    print(tabulate(top_100[:10], headers=["Artist_Song", "Edit Distance"]))
+    top_10 = top_100[:10]
+    print(tabulate((top_10), headers=["Artist", "Song", "Edit Distance"]))
 
 
 def regex_search(songs: tarData, members: List):
@@ -223,8 +223,7 @@ def regex_search(songs: tarData, members: List):
         match_count = len(pattern.findall(lyrics))
 
         #save count of all occurrences in list, use bisect to insert based on count
-#         print(f"{member[0]}/{member_count}", end="\r", flush=True)
-#         print(f"{member[0]}/{member_count}\r")
+        print(f"{member[0]}/{member_count}", end="\r", flush=True)
 
         # if any matches
         if match_count > 0:
@@ -268,8 +267,7 @@ def sentence_search(songs: tarData, members: List):
         match_count = len(pattern.findall(lyrics))
 
         #save count of all occurrences in list, use bisect to insert based on count
-#         print(f"{member[0]}/{member_count}", end="\r", flush=True)
-#         print(f"{member[0]}/{member_count}\r")
+        print(f"{member[0]}/{member_count}", end="\r", flush=True)
 
         # if any matches
         if match_count > 0:
@@ -328,8 +326,7 @@ def sentence_list_search():
             match_count = len(pattern.findall(lyrics))
 
             #save count of all occurrences in list, use bisect to insert based on count
-#             print(f"{member[0]}/{member_count}", end="\r", flush=True)
-#             print(f"{member[0]}/{member_count}\r")
+            print(f"{member[0]}/{member_count}", end="\r", flush=True)
 
             # if any matches
             if match_count > 0:
@@ -353,8 +350,7 @@ def sentence_list_search():
                     writer.writerow(row)
                 except:
                     continue
-#         print(f"\nSearch for '{sentence}' finished.", end="\n", flush=True)
-#         print(f"\nSearch for '{sentence}' finished.\r")
+        print(f"\nSearch for '{sentence}' finished.", end="\n", flush=True)
     songs.close()
 
 
@@ -388,8 +384,7 @@ def vocab_list_search():
         #save in dictionary
         name = member[1].name.rstrip(".txt")
         results[name] += match_ratio
-#         print(f"{member[0]}/{member_count}", end="\r", flush=True)
-#         print(f"{member[0]}/{member_count}\r")
+        print(f"{member[0]}/{member_count}", end="\r", flush=True)
 
     #sort list of matches by value
     results = list(results.items())
@@ -420,7 +415,11 @@ if __name__ == "__main__":
     with open(SEARCH_DESC) as f:
         how_to_use = f.read()
 
-    parser = argparse.ArgumentParser(prog="Search" ,formatter_class=argparse.RawDescriptionHelpFormatter, description=how_to_use)
+    #Load epilog
+    with open(SEARCH_EPILOG) as f:
+        examples = f.read()
+
+    parser = argparse.ArgumentParser(prog="Search" ,formatter_class=argparse.RawDescriptionHelpFormatter, description=how_to_use, epilog=examples)
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--interactive", action="store_true", help="Run the search program interactively.")
@@ -432,7 +431,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.interactive:
-        interactive_search(args)
+        interactive_search()
 
     elif args.sentencelist:
         sentence_list_search()
