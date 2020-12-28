@@ -118,6 +118,8 @@ def lyric_search(songs: tarData, members: List):
         if view_extract == "v":
             answer = int(input("Which one do you want to view? [index #] "))
             artist = top_10[answer][1]
+
+            #TODO, error says here, but...
             song = top_10[answer][2]
             title = f"{artist}_{song}.txt"
             text = songs.extractfile(title).read().decode("utf-8")
@@ -134,6 +136,7 @@ def lyric_search(songs: tarData, members: List):
             break
         else:
             print("Choose one of [veq].")
+
 
 
 def interactive_search():

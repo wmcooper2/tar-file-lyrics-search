@@ -265,6 +265,8 @@ if __name__ == "__main__":
                 #Save
                 lyrics_scraped.write(song_url+"\n")
                 data = f"{lyrics}".encode("utf8")
+
+                #TODO, normalize names for the files here, I think the punctuation is affecting extraction later in the program
                 info = tarfile.TarInfo(name=f"{artist}_{song}.txt")
                 info.size = len(data)
                 with tarfile.TarFile('lyrics.tar', 'a') as tar:

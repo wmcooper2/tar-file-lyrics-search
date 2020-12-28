@@ -6,7 +6,6 @@ import os
 from pathlib import Path
 from pprint import pprint
 import tarfile
-from textwrap import wrap
 from typing import Generator
 
 # custom
@@ -27,7 +26,6 @@ from file_util import (
     search,
     tar_contents)
 from metrics_util import calculate_english_score, load_songs, word_set
-
 
 
 if __name__ == "__main__":
