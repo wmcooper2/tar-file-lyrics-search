@@ -77,12 +77,12 @@ def divide_tarball(tarball: tarData, num: int) -> None:
     #Divide the bulk of the archives
     name_counter = 0
     for file_ in range(1, num+1):
-        name = str(file_)+".tar"
+        name = f"tars/{str(file_)}.tar"
         new_tar = tarfile.open(name, mode="a:")
 
         #Put the new_amount of archives into the new tarball
         for new_file in range(new_amount):
-            print(f"Subdividing the tarball: {name_counter}/{file_count}", end="\r")
+            print(f"Subdividing the tarball: {name_counter}/{file_count}", end="\r", flush=True)
             archive_name = names[name_counter]
             name_counter += 1
             data = main_tar.extractfile(archive_name) 
@@ -105,6 +105,7 @@ def divide_tarball(tarball: tarData, num: int) -> None:
         new_tar.addfile(archive_name, io.BytesIO(extracted))
         new_tar.close()
     main_tar.close()
+    print("Dividing archives finished.")
 
 
 def extract_file_contents(file_name: str, name: tarData) -> bytes:

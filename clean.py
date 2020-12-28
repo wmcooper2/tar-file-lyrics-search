@@ -12,6 +12,7 @@ from typing import Generator
 # custom
 from constants import (
     CLEAN_DESC,
+    CLEAN_EPILOG,
     DICTIONARY,
     ENG_TARBALL,
     TARS,
@@ -35,7 +36,11 @@ if __name__ == "__main__":
     with open(CLEAN_DESC) as f:
         how_to_use = f.read()
 
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=how_to_use)
+    #Load epilog
+    with open(CLEAN_EPILOG) as f:
+        examples = f.read()
+
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=how_to_use, epilog=examples)
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--checknames", action="store_true", help="Show how the names of the TarInfo objects conform to my naming convention (see README).")
     group.add_argument("--dbfield", action="store", nargs=2, type=str, metavar=("NAME", "TYPE"), help="Add a column to the DB with label NAME and type TYPE.")
@@ -44,9 +49,7 @@ if __name__ == "__main__":
     group.add_argument("--popdb", action="store", nargs=2, type=str, metavar=("TARBALL", "DATABASE"), help="Create and populate DATABASE with artists and song names from compressed TARBALL.")
     group.add_argument("--vocab", action="store", nargs=1, type=str, metavar=("TARBALL"), help="Make a tarball that contains only unique word sets of the original lyrics in the given tarball.")
 
-
     args = parser.parse_args()
-    
 
 #POPULATE DB
     if args.popdb:
@@ -108,8 +111,7 @@ if __name__ == "__main__":
 
 #DIVIDE TARBALLS
     elif args.dividetarball:
-        print(args.dividetarball)
-        quit()
+#         print(args.dividetarball)
         name = args.dividetarball[0] 
         amt = int(args.dividetarball[1])
         assert amt > 1
