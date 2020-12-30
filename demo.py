@@ -26,14 +26,9 @@ Song = namedtuple("Song", ["artist", "name"])
 
 
 # Run Demo for demo argparser
-#     Johnny Cash_Its Going to Take a Little Bit Longer.txt
+#   Nat King Cole_A Blossom Fell.txt
 
 #TODO, some songs cannot be extracted...
-# Do this to recreate the error;
-#   lyrics
-#   No No No
-#   v
-#   8
 
 
 if __name__ == "__main__":
