@@ -16,14 +16,14 @@ Prepare the data for use in a pi-cluster.
 To search through the data collection concurrently.
 
 ### Important Points
-The final program will contain 5 major stages/areas:
-    * Gather    - collect/scrape the data from the internet and save in an easy to use/store format
-        * CLI tool: `scraper.py`
-    * Clean     - normalize/rename/preprocess in preparation for easy use in later stages/areas
-        * CLI tool: `preprocess.py`
-    * Search    - search for grammar patterns/"vocabulary lists"/etc 
-    * Metrics   - calculate metrics that require iterating through the entire data set
-    * Recommend - using user profiles and data about the lyrics, recommend other forms of media related to the user's search
+The final program will contain 5 major stages/areas:  
+    * Gather    - collect/scrape the data from the internet and save in an easy to use/store format  
+        * CLI tool: `scraper.py`  
+    * Clean     - normalize/rename/preprocess in preparation for easy use in later stages/areas  
+        * CLI tool: `preprocess.py`  
+    * Search    - search for grammar patterns/"vocabulary lists"/etc   
+    * Metrics   - calculate metrics that require iterating through the entire data set  
+    * Recommend - using user profiles and data about the lyrics, recommend other forms of media related to the user's search  
 
 ### Naming Conventions
 * TarInfo objects names;
@@ -99,40 +99,40 @@ from_text = timeit("load_text", number=10000, globals=globals())
 ```
 
 ## Profiling
-Using `cProfile`;
-    1. run `python3 setup.py build_ext --inplace`
-    2. `cProfile.run("lyric_search(songs, members)", filename=f"profile_results/lyric_search_{datetime.utcnow()}.stats")`
-    3. results are saved in `profile_results/lyric_search_<timestamp>.stats`
+Using `cProfile`;  
+    1. run `python3 setup.py build_ext --inplace`  
+    2. `cProfile.run("lyric_search(songs, members)", filename=f"profile_results/lyric_search_{datetime.utcnow()}.stats")`  
+    3. results are saved in `profile_results/lyric_search_<timestamp>.stats`  
 
-Using `SnakeViz`;
-    1. use the profile created with cProfile
-    2. run `snakeviz profile_results/<name of profile>`
+Using `SnakeViz`;  
+    1. use the profile created with cProfile  
+    2. run `snakeviz profile_results/<name of profile>`  
 
-Using `line_profiler`;
-    1. mark the function you want to profile with a decorator: `@profile`
-    2. run `kernprof -l -v your_module.py`
-    3. view the results with: `python -m line_profiler your_profile.py.lprof`
+Using `line_profiler`;  
+    1. mark the function you want to profile with a decorator: `@profile`  
+    2. run `kernprof -l -v your_module.py`  
+    3. view the results with: `python -m line_profiler your_profile.py.lprof`  
     
-Using `pstats`;
-    1. open a python3 shell
-    2. run this;
-        ```python
-            import pstats
-            p = pstats.Stats("<name of profile>")
-            p.print_stats()
-        ```
+Using `pstats`;  
+    1. open a python3 shell  
+    2. run this;  
+        ```python  
+            import pstats  
+            p = pstats.Stats("<name of profile>")  
+            p.print_stats()  
+        ```  
 
-Using `memory_profiler`;
-    source; https://pypi.org/project/memory-profiler/
-    1. mark the function you want to profile with a decorator: `@profile`
-    2. run `python3 -m memory_profiler your_module.py`
+Using `memory_profiler`;  
+    source; https://pypi.org/project/memory-profiler/  
+    1. mark the function you want to profile with a decorator: `@profile`  
+    2. run `python3 -m memory_profiler your_module.py`  
 
 
-General Process;
-    1. Start with cProfile and use the high level view to guide which functions to profile with `line_profiler` or other profilers
-        * run `python3 setup.py build_ext --inplace` to compile
-    2. run this within your code to profile a specific function;
-        * Example, to profile the `lyric_search` function and save in `filename`
+General Process;  
+    1. Start with cProfile and use the high level view to guide which functions to profile with `line_profiler` or other profilers  
+        * run `python3 setup.py build_ext --inplace` to compile  
+    2. run this within your code to profile a specific function;  
+        * Example, to profile the `lyric_search` function and save in `filename`  
 
 ## Errors
 ```python
