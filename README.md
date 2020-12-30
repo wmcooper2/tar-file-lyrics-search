@@ -1,6 +1,13 @@
 # Description
 A CLI tool for setting up the Lyrics database.
 
+
+### Demo
+To run a demo, which only uses the functions from search.py, run:  
+    `python3 demo.py --demo`  
+Then follow the prompts.
+
+
 ### Purpose(s)
 To setup a database for a future lyrics search program.
 Store artists and song names in SQL database.
@@ -39,7 +46,7 @@ The final program will contain 5 major stages/areas:
 
 ### Testing
 * Run `./test` from project dir
-* Run `./reset` to clear the contents of `support/` 
+* (TODO) Run `./reset` to clear the contents of `support/` 
 * The "coverage" 3rd party package does not work for me...I need to read more on it.
 
 ### Notes on Database Operations
